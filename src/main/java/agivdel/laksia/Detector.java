@@ -16,13 +16,13 @@ public class Detector {
      * Ищет лица (по умолчанию - каскадом Хаара),
      * записывает в матрицу faces координаты ограничивающих эти лица прямоугольников,
      * рисует эти прямоугольники на матрице исходного изображения.
+     *
      * @param grayImageMat матрица с исходным изображением для поиска лиц
-     * @param minNeighbors
      * @param minSize
      * @return
      */
 
-    public static MatOfRect findFaces(Mat grayImageMat, int minNeighbors, int minSize) {
+    public static MatOfRect findFaces(Mat grayImageMat, int minSize) {
         CascadeClassifier faceDetector = new CascadeClassifier(
                 "src/main/resources/trainedModel/haarcascades/" +
                         "haarcascade_frontalface_alt.xml");
@@ -33,7 +33,7 @@ public class Detector {
         faceDetector.detectMultiScale(grayImageMat,
                 faces,
                 1.1,
-                minNeighbors,//встречал значение "2"
+                1,//встречал значение "2"
                 Objdetect.CASCADE_DO_CANNY_PRUNING,//встречал значние "CASCADE_SCALE_IMAGE"
                 new Size(minSize, minSize),
                 grayImageMat.size());//вторым параметром указана матрица, куда будет записан результат
@@ -45,8 +45,9 @@ public class Detector {
      * записывает координаты этих точек в матрицу landmarks,
      * рисует эти точки на матрице исходного изображения.
      * Пока этот инструмент не использую.
+     *
      * @param grayImageMat матрица с исходным изображением для поиска ориентирных точек
-     * @param faces матрица координат найденных лиц
+     * @param faces        матрица координат найденных лиц
      * @param flag
      * @return
      */

@@ -3,28 +3,18 @@ package agivdel.laksia;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.geometry.VPos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.Label;
-import javafx.scene.control.Menu;
-import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
-import javafx.scene.paint.Color;
-import javafx.scene.shape.Rectangle;
-import javafx.scene.shape.Shape;
-import javafx.scene.text.Font;
-import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import org.opencv.core.*;
-import org.opencv.face.FaceRecognizer;
-import org.opencv.face.LBPHFaceRecognizer;
 import org.opencv.imgproc.Imgproc;
 
 
@@ -33,13 +23,9 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.LinkOption;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.*;
 
-public class Controller extends View implements Initializable {
+public class Controller implements Initializable {
     private static Stage stage;
     private static Scene scene;
     private static final Desktop desktop = Desktop.getDesktop();
@@ -55,8 +41,6 @@ public class Controller extends View implements Initializable {
     private Map<Rect, String> facess;
     private double widthScaleFactor, heightScaleFactor;//коэфф.показывает, во сколько раз панель больше файла
 
-
-    @FXML private Pane currentAddressPane;
     @FXML private TextField getParentField;
     @FXML private StackPane pane;
     @FXML private ImageView imageView;
@@ -65,22 +49,14 @@ public class Controller extends View implements Initializable {
     @FXML private Label getMatProfileLabel;
     @FXML private Label foundFacesNumberLabel;
 
-    @FXML private MenuItem externalProgramMenu;
-    @FXML private Menu toolMenu;
-    @FXML private MenuItem faceDetectMenu;
     @FXML private CheckMenuItem autoFaceDetectMenu;
-    @FXML private MenuItem putRectangleBackMenu;
     @FXML private RadioMenuItem maskRectangleMenu;
     @FXML private RadioMenuItem showRectangleMenu;
-    @FXML private MenuItem landmarkDetectMenu;
-    @FXML private MenuItem faceRecognizeMenu;
     @FXML private CheckMenuItem autoFaceRecognizeMenu;
 
-    @FXML private ToolBar toolBar;
     @FXML private Slider faceProportionSlider;
     @FXML private Label faceMinSizeLabel;
     @FXML private Label foundFacesNumberLabel2;
-    @FXML private Slider minNeighborsSlider;
 
 
     /**
@@ -160,7 +136,6 @@ public class Controller extends View implements Initializable {
      * Закрытие программы.
      */
     @FXML private void programExit() {
-//        camera.release();//отключение веб-камеры
         stage.close();
         Platform.exit();
     }

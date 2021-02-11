@@ -33,7 +33,7 @@
 
                         <Menu text="View">
                             <items>
-                                <MenuItem fx:id="externalProgramMenu" onAction="#externalProgramEdit"
+                                <MenuItem fx:id="externalProgramMenu" onAction="#openFileWithExternalProgram"
                                           text="Edit with external program"/>
                             </items>
                         </Menu>
@@ -102,8 +102,6 @@
                         showTickLabels="true" showTickMarks="true" snapToTicks="true" value="0.2"/>
                 <Label fx:id="faceMinSizeLabel" prefHeight="20" prefWidth="50"/>
                 <Label fx:id="foundFacesNumberLabel2" prefHeight="20" prefWidth="50"/>
-                <Slider fx:id="minNeighborsSlider" majorTickUnit="1" max="5" min="0" minorTickCount="0"
-                        showTickLabels="true" showTickMarks="true" snapToTicks="true" value="1"/>
             </items>
         </ToolBar>
     </right>
