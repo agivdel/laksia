@@ -117,7 +117,7 @@ public class Controller implements Initializable {
     private void openSingleFile() {
         file = fileChooserConfigure().showOpenDialog(stage);
         if (file == null) {
-            Alert alert = new Alert(Alert.AlertType.ERROR, "file not exist");
+            Alert alert = new Alert(Alert.AlertType.ERROR, "no file selected");
             alert.showAndWait();
         }
         displayImageFile(file);
@@ -149,8 +149,9 @@ public class Controller implements Initializable {
     @FXML
     private void openFileWithExternalProgram() throws IOException {
         if (file == null) {
-            Alert alert = new Alert(Alert.AlertType.ERROR, "file not exist");
+            Alert alert = new Alert(Alert.AlertType.ERROR, "no file selected");
             alert.showAndWait();
+            return;
         }
         desktop.open(file);
     }
@@ -258,6 +259,8 @@ public class Controller implements Initializable {
     @FXML
     private void faceDetect() throws MalformedURLException {
         if (file == null) {
+            Alert alert = new Alert(Alert.AlertType.ERROR, "no file selected");
+            alert.showAndWait();
             return;
         }
         originImageMat = MatConvert.fileNameToMat(file.getPath(), -1);
@@ -293,19 +296,6 @@ public class Controller implements Initializable {
                 double confidenceValue = result[1];
             }
         }
-
-//        for (Rect rect : faces.toList()) {
-//            //когда реальный размер изображения больше окна, выделение уходит в сторону - ИСПРАВИТЬ!
-//            Mat face = grayImageMat.submat(rect);
-//            Mat resizeMat = new Mat();
-//            Imgproc.resize(grayImageMat, resizeMat, new Size(250, 250));
-//            drawSingleFace(rect);
-//            if (autoFaceRecognizeMenu.isSelected()) {
-//                double[] result = faceRecognize(resizeMat);
-//                double predictedLabel = result[0];
-//                double confidenceValue = result[1];
-//            }
-//        }
     }
 
 
@@ -320,26 +310,37 @@ public class Controller implements Initializable {
         Drawer.drawAllFaces(facesPane, faces, pane, facess, imageView, widthScaleFactor, heightScaleFactor, file);
     }
 
+    /**
+     * Делаем слой с лицами полностью прозрачным.
+     */
     @FXML
     private void maskRectangle() {
         facesPane.setOpacity(0);
     }
 
+    /**
+     * Если лица еще не найдены, ищем их.
+     * Если лица уже найдены, возвращаем слою с лицами частичную непрозрачность.
+     * @throws MalformedURLException
+     */
     @FXML
     private void showRectangle() throws MalformedURLException {
         if (file == null) {
-            System.out.println("выберите изображение");
-            return;
+            Alert alert = new Alert(Alert.AlertType.INFORMATION, "select the image file");
+            alert.showAndWait();
         }
         if (faces.empty()) {
-            System.out.println("faces.empty");
             faceDetect();
         } else {
-            System.out.println("faces is not empty");
             facesPane.setOpacity(0.4);
         }
     }
 
+    /**
+     * Распознаем найденные лица.
+     * @param currentFace матрица с изображением.
+     * @return The predicted label for the given image and associated confidence (e.g. distance) for the predicted label.
+     */
     @FXML
     private double[] faceRecognize(Mat currentFace) {
         return Recognizer.faceRecognize(currentFace);

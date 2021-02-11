@@ -33,21 +33,21 @@
 
                         <Menu text="View">
                             <items>
-                                <MenuItem fx:id="externalProgramMenu" onAction="#openFileWithExternalProgram"
+                                <MenuItem onAction="#openFileWithExternalProgram"
                                           text="Edit with external program"/>
                             </items>
                         </Menu>
 
-                        <Menu fx:id="toolMenu" text="Tool">
+                        <Menu text="Tool">
                             <items>
-                                <MenuItem fx:id="faceDetectMenu" onAction="#faceDetect" text="Detect faces">
+                                <MenuItem onAction="#faceDetect" text="Detect faces">
                                     <accelerator>
                                         <KeyCodeCombination alt="UP" code="D" control="DOWN" meta="UP" shift="UP"
                                                             shortcut="UP"/>
                                     </accelerator>
                                 </MenuItem>
                                 <CheckMenuItem fx:id="autoFaceDetectMenu" text="Automatic face detection"/>
-                                <MenuItem fx:id="putRectangleBackMenu" onAction="#putRectangleBack"
+                                <MenuItem onAction="#putRectangleBack"
                                           text="Put the faces back"/>
                                 <SeparatorMenuItem mnemonicParsing="false"/>
 
@@ -57,14 +57,14 @@
                                                text="Show the faces"/>
                                 <SeparatorMenuItem mnemonicParsing="false"/>
 
-                                <MenuItem fx:id="faceRecognizeMenu" text="Recognize faces"/>
+                                <MenuItem text="Recognize faces"/>
                                 <CheckMenuItem fx:id="autoFaceRecognizeMenu" text="Automatic face recognition"/>
                             </items>
                         </Menu>
                     </menus>
                 </MenuBar>
 
-                <Pane fx:id="currentAddressPane" maxHeight="25.0" minHeight="25.0" prefHeight="25.0"
+                <Pane maxHeight="25.0" minHeight="25.0" prefHeight="25.0"
                       style="-fx-background-color: yellow;">
                     <TextField fx:id="getParentField" layoutY="1.0" maxHeight="23.0" minHeight="23.0" minWidth="200.0"
                                prefHeight="23.0" prefWidth="250.0"
@@ -94,7 +94,7 @@
     </bottom>
 
     <right>
-        <ToolBar fx:id="toolBar" orientation="VERTICAL" prefWidth="200.0" style="-fx-border-color: green;"
+        <ToolBar orientation="VERTICAL" prefWidth="200.0" style="-fx-border-color: green;"
                  BorderPane.alignment="TOP_RIGHT">
             <items>
                 <Button onAction="#faceDetect" text="Detect faces"/>
