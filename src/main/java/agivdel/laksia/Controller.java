@@ -41,26 +41,41 @@ public class Controller implements Initializable {
     private Map<Rect, String> facess;
     private double widthScaleFactor, heightScaleFactor;//коэфф.показывает, во сколько раз панель больше файла
 
-    @FXML private TextField getParentField;
-    @FXML private StackPane pane;
-    @FXML private ImageView imageView;
-    @FXML private Pane facesPane;
-    @FXML private Label getNameLabel;
-    @FXML private Label getMatProfileLabel;
-    @FXML private Label foundFacesNumberLabel;
+    @FXML
+    private TextField getParentField;
+    @FXML
+    private StackPane pane;
+    @FXML
+    private ImageView imageView;
+    @FXML
+    private Pane facesPane;
+    @FXML
+    private Label getNameLabel;
+    @FXML
+    private Label getMatProfileLabel;
+    @FXML
+    private Label foundFacesNumberLabel;
 
-    @FXML private CheckMenuItem autoFaceDetectMenu;
-    @FXML private RadioMenuItem maskRectangleMenu;
-    @FXML private RadioMenuItem showRectangleMenu;
-    @FXML private CheckMenuItem autoFaceRecognizeMenu;
+    @FXML
+    private CheckMenuItem autoFaceDetectMenu;
+    @FXML
+    private RadioMenuItem maskRectangleMenu;
+    @FXML
+    private RadioMenuItem showRectangleMenu;
+    @FXML
+    private CheckMenuItem autoFaceRecognizeMenu;
 
-    @FXML private Slider faceProportionSlider;
-    @FXML private Label faceMinSizeLabel;
-    @FXML private Label foundFacesNumberLabel2;
+    @FXML
+    private Slider faceProportionSlider;
+    @FXML
+    private Label faceMinSizeLabel;
+    @FXML
+    private Label foundFacesNumberLabel2;
 
 
     /**
      * Метод для передачи объекта главного окна в класс контроллера.
+     *
      * @param stage объект главного окна
      */
     public void setStage(Stage stage) {
@@ -70,6 +85,7 @@ public class Controller implements Initializable {
 
     /**
      * Инициализация объектов и полей.
+     *
      * @param url
      * @param resourceBundle
      */
@@ -97,11 +113,14 @@ public class Controller implements Initializable {
     /**
      * Открытие файла изображения с помощью объекта выбора файлов.
      */
-    @FXML private void openSingleFile() {
+    @FXML
+    private void openSingleFile() {
         file = fileChooserConfigure().showOpenDialog(stage);
-        if (file != null) {
-            displayImageFile(file);
+        if (file == null) {
+            Alert alert = new Alert(Alert.AlertType.ERROR, "file not exist");
+            alert.showAndWait();
         }
+        displayImageFile(file);
     }
 
     /**
@@ -124,18 +143,23 @@ public class Controller implements Initializable {
 
     /**
      * Загруженный файл откроется программой ОС, настроенной по умолчанию для этого типа файлов.
+     *
      * @throws IOException
      */
-    @FXML private void openFileWithExternalProgram() throws IOException {
-        if (file != null) {
-            desktop.open(file);
+    @FXML
+    private void openFileWithExternalProgram() throws IOException {
+        if (file == null) {
+            Alert alert = new Alert(Alert.AlertType.ERROR, "file not exist");
+            alert.showAndWait();
         }
+        desktop.open(file);
     }
 
     /**
      * Закрытие программы.
      */
-    @FXML private void programExit() {
+    @FXML
+    private void programExit() {
         stage.close();
         Platform.exit();
     }
@@ -164,7 +188,6 @@ public class Controller implements Initializable {
     }
 
 
-
     private void maskiShowGroupInit() {
         ToggleGroup showOrMaskGroup = new ToggleGroup();
         maskRectangleMenu.setToggleGroup(showOrMaskGroup);
@@ -186,6 +209,7 @@ public class Controller implements Initializable {
 
     /**
      * отображение выбранного файла изображения
+     *
      * @param file файл изображения
      */
     private void displayImageFile(File file) {
@@ -204,12 +228,12 @@ public class Controller implements Initializable {
             //дублирование файла изображения в отдельном новом окне
 //            Window.showImage(imageFile, "file image", pane, stage);
 
-            //слишком большие изображения подгоняются под размер панели и остаются такими до конца
+            //изображения больше панели подгоняются под ее размер и остаются такими до конца
             if (imageFile.getWidth() > pane.getWidth() || imageFile.getHeight() > pane.getHeight()) {
                 imageView.setFitWidth(pane.getWidth());
                 imageView.setFitHeight(pane.getHeight());
             } else {
-                //маленькие изображения сохраняют исходные размеры
+                //изображения меньше панели сохраняют исходные размеры
                 imageView.setFitWidth(0);
                 imageView.setFitHeight(0);
             }
@@ -231,7 +255,8 @@ public class Controller implements Initializable {
     /**
      * ищем лица на изображении
      */
-    @FXML private void faceDetect() throws MalformedURLException {
+    @FXML
+    private void faceDetect() throws MalformedURLException {
         if (file == null) {
             return;
         }
@@ -241,8 +266,8 @@ public class Controller implements Initializable {
 
         int minSize = 0;
         int height = grayImageMat.rows();
-        if (Math.round(height * (float)faceProportion) > 0) {//минимальный размер лица, который можно будет найти
-            minSize = Math.round((height * (float)faceProportion));
+        if (Math.round(height * (float) faceProportion) > 0) {//минимальный размер лица, который можно будет найти
+            minSize = Math.round((height * (float) faceProportion));
         }
         faceMinSizeLabel.setText(String.valueOf(minSize));//временно, потом убрать
         faces = new MatOfRect();
@@ -284,22 +309,24 @@ public class Controller implements Initializable {
     }
 
 
-
     //90. если пользователь нажал "новый человек", сохраняю это имя
     //95. и экстракт лица помещаю в модель FR, используя имя в имени (или номер?)
     //110. показываю на панели лиц отметку с ближайшим вектором для данного лица (т.е. предсказание модели)
     //120. возможно, ближайшего вектора не найдется, тогда обозначить лицо "неизвестный"
 
 
-    @FXML private void putRectangleBack() throws MalformedURLException {
+    @FXML
+    private void putRectangleBack() throws MalformedURLException {
         Drawer.drawAllFaces(facesPane, faces, pane, facess, imageView, widthScaleFactor, heightScaleFactor, file);
     }
 
-    @FXML private void maskRectangle() {
+    @FXML
+    private void maskRectangle() {
         facesPane.setOpacity(0);
     }
 
-    @FXML private void showRectangle() throws MalformedURLException {
+    @FXML
+    private void showRectangle() throws MalformedURLException {
         if (file == null) {
             System.out.println("выберите изображение");
             return;
@@ -313,7 +340,8 @@ public class Controller implements Initializable {
         }
     }
 
-    @FXML private double[] faceRecognize(Mat currentFace) {
+    @FXML
+    private double[] faceRecognize(Mat currentFace) {
         return Recognizer.faceRecognize(currentFace);
     }
 
