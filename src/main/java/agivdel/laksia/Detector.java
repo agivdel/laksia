@@ -1,5 +1,6 @@
 package agivdel.laksia;
 
+import javafx.scene.control.Alert;
 import org.opencv.core.*;
 import org.opencv.face.Face;
 import org.opencv.face.Facemark;
@@ -18,25 +19,25 @@ public class Detector {
      * рисует эти прямоугольники на матрице исходного изображения.
      *
      * @param grayImageMat матрица с исходным изображением для поиска лиц
-     * @param minSize
-     * @return
+     * @param minSize      минимальный размер лица, который можно будет найти (в долях от высоты изображения)
+     * @return матрицу прямоугольников с координатами найденных лиц
      */
-
     public static MatOfRect findFaces(Mat grayImageMat, int minSize) {
         CascadeClassifier faceDetector = new CascadeClassifier(
                 "src/main/resources/trainedModel/haarcascades/" +
                         "haarcascade_frontalface_alt.xml");
         if (faceDetector.empty()) {
-            System.out.println("Не удалось загрузить классификатор лиц");
+            Alert alert = new Alert(Alert.AlertType.ERROR, "failed to load face classifier");
+            alert.showAndWait();
         }
         MatOfRect faces = new MatOfRect();
         faceDetector.detectMultiScale(grayImageMat,
-                faces,
+                faces,//матрица, куда будет записан результат
                 1.1,
                 1,//встречал значение "2"
                 Objdetect.CASCADE_DO_CANNY_PRUNING,//встречал значние "CASCADE_SCALE_IMAGE"
                 new Size(minSize, minSize),
-                grayImageMat.size());//вторым параметром указана матрица, куда будет записан результат
+                grayImageMat.size());
         return faces;
     }
 
@@ -48,8 +49,8 @@ public class Detector {
      *
      * @param grayImageMat матрица с исходным изображением для поиска ориентирных точек
      * @param faces        матрица координат найденных лиц
-     * @param flag
-     * @return
+     * @param flag         индекс для выбора алгоритма поиска ориентирных точек
+     * @return исходную матрицу с отрисованными ориентирными точками
      */
     public static Mat findLandmarks(Mat grayImageMat, MatOfRect faces, int flag) {
         Facemark facemark;

@@ -116,6 +116,7 @@ public class Controller implements Initializable {
     @FXML
     private void openSingleFile() {
         file = fileChooserConfigure().showOpenDialog(stage);
+        //TODO вызывать метод обработки из отдельного класса обработки ошибок?
         if (file == null) {
             Alert alert = new Alert(Alert.AlertType.ERROR, "no file selected");
             alert.showAndWait();
@@ -143,7 +144,6 @@ public class Controller implements Initializable {
 
     /**
      * Загруженный файл откроется программой ОС, настроенной по умолчанию для этого типа файлов.
-     *
      * @throws IOException
      */
     @FXML
@@ -305,6 +305,10 @@ public class Controller implements Initializable {
     //120. возможно, ближайшего вектора не найдется, тогда обозначить лицо "неизвестный"
 
 
+    /**
+     * Все зоны выделения найденных лиц после сдвига отрисовываются заново (возвращаются на место).
+     * @throws MalformedURLException
+     */
     @FXML
     private void putRectangleBack() throws MalformedURLException {
         Drawer.drawAllFaces(facesPane, faces, pane, facess, imageView, widthScaleFactor, heightScaleFactor, file);
