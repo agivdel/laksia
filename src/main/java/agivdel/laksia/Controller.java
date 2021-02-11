@@ -25,7 +25,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
 
-public class Controller implements Initializable {
+public class Controller extends View implements Initializable {
     private static Stage stage;
     private static Scene scene;
     private static final Desktop desktop = Desktop.getDesktop();
@@ -111,22 +111,10 @@ public class Controller implements Initializable {
     }
 
     /**
-     * Открытие файла изображения с помощью объекта выбора файлов.
-     */
-    @FXML
-    private void openSingleFile() {
-        file = fileChooserConfigure().showOpenDialog(stage);
-        //TODO вызывать метод обработки из отдельного класса обработки ошибок?
-        if (file == null) {
-            Alert alert = new Alert(Alert.AlertType.ERROR, "no file selected");
-            alert.showAndWait();
-        }
-        displayImageFile(file);
-    }
-
-    /**
      * Отображение директории с выбранным файлом изображения в поле getParentField.
-     * Поле getParentField может принимать путь к файлу. Если файл существует, он будет открыт.
+     * Поле getParentField может принимать путь к файлу.
+     * Если файл существует, он будет открыт.
+     * Если такого файла нет, в поле будет показан старый (предыдущий) адрес.
      */
     private void getParentDirectoryFieldInit() {
         getParentField.setOnKeyReleased(keyEvent -> {
@@ -140,29 +128,6 @@ public class Controller implements Initializable {
                 }
             }
         });
-    }
-
-    /**
-     * Загруженный файл откроется программой ОС, настроенной по умолчанию для этого типа файлов.
-     * @throws IOException
-     */
-    @FXML
-    private void openFileWithExternalProgram() throws IOException {
-        if (file == null) {
-            Alert alert = new Alert(Alert.AlertType.ERROR, "no file selected");
-            alert.showAndWait();
-            return;
-        }
-        desktop.open(file);
-    }
-
-    /**
-     * Закрытие программы.
-     */
-    @FXML
-    private void programExit() {
-        stage.close();
-        Platform.exit();
     }
 
     /**
@@ -186,6 +151,43 @@ public class Controller implements Initializable {
                 new FileChooser.ExtensionFilter("PGM", "*.pgm")//Portable Gray Map Image, читается OpenCV
         );
         return fileChooser;
+    }
+
+    /**
+     * Открытие файла изображения с помощью объекта выбора файлов.
+     */
+    @FXML
+    private void openSingleFile() {
+        file = fileChooserConfigure().showOpenDialog(stage);
+        //TODO вызывать метод обработки из отдельного класса обработки ошибок?
+        if (file == null) {
+            Alert alert = new Alert(Alert.AlertType.ERROR, "no file selected");
+            alert.showAndWait();
+        }
+        displayImageFile(file);
+    }
+
+    /**
+     * Загруженный файл откроется программой ОС, настроенной по умолчанию для этого типа файлов.
+     * @throws IOException
+     */
+    @FXML
+    private void openFileWithExternalProgram() throws IOException {
+        if (file == null) {
+            Alert alert = new Alert(Alert.AlertType.ERROR, "no file selected");
+            alert.showAndWait();
+            return;
+        }
+        desktop.open(file);
+    }
+
+    /**
+     * Закрытие программы.
+     */
+    @FXML
+    private void programExit() {
+        stage.close();
+        Platform.exit();
     }
 
 
@@ -215,8 +217,7 @@ public class Controller implements Initializable {
      */
     private void displayImageFile(File file) {
         try {
-            String localUrl = file.toURI().toURL().toString();
-            Image imageFile = new Image(localUrl);
+            Image imageFile = new Image(file.toURI().toString());
 
             getParentField.setText(file.getParent() + "\\");
             getParentField.positionCaret(getParentField.getText().length());
@@ -224,20 +225,11 @@ public class Controller implements Initializable {
             foundFacesNumberLabel.setText("");
             facesPane.getChildren().clear();
 
-            imageView.setImage(imageFile);
-
             //дублирование файла изображения в отдельном новом окне
-//            Window.showImage(imageFile, "file image", pane, stage);
+            NewWindow.showImage(imageFile, "file image", pane, stage);
 
-            //изображения больше панели подгоняются под ее размер и остаются такими до конца
-            if (imageFile.getWidth() > pane.getWidth() || imageFile.getHeight() > pane.getHeight()) {
-                imageView.setFitWidth(pane.getWidth());
-                imageView.setFitHeight(pane.getHeight());
-            } else {
-                //изображения меньше панели сохраняют исходные размеры
-                imageView.setFitWidth(0);
-                imageView.setFitHeight(0);
-            }
+            imageView = NewWindow.getImageView(pane, imageFile);
+            pane.getChildren().add(imageView);
             widthScaleFactor = (pane.getWidth() / imageFile.getWidth());
             heightScaleFactor = (pane.getHeight() / imageFile.getHeight());
 
@@ -254,7 +246,7 @@ public class Controller implements Initializable {
     }
 
     /**
-     * ищем лица на изображении
+     * Ищем лица на изображении и распознаем их.
      */
     @FXML
     private void faceDetect() throws MalformedURLException {
