@@ -7,16 +7,11 @@ import javafx.scene.control.*;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.StackPane;
 import javafx.stage.FileChooser;
 import org.opencv.core.*;
 import org.opencv.imgproc.Imgproc;
 
-
-import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -24,27 +19,9 @@ import java.net.URL;
 import java.util.*;
 
 public class Controller extends View implements Initializable {
-    private static final Desktop desktop = Desktop.getDesktop();
-
-    private static double faceProportion;
-
-    private static Map<Integer, String> names;
-
-    private File file;//файл изображения
-    private Mat originImageMat;//матрица исходного изображения (1-, 3- или 4-канальная)
-    private Mat grayImageMat;//матрица изображения в оттенках серого
-    private MatOfRect faces;//матрица с координатами обнаруженных лиц
-    private Map<Rect, String> facess;
-    private double widthScaleFactor, heightScaleFactor;//коэфф.показывает, во сколько раз панель больше файла
 
     @FXML
     private TextField getParentField;
-    @FXML
-    private StackPane pane;
-    @FXML
-    private ImageView imageView;
-    @FXML
-    private Pane facesPane;
     @FXML
     private Label getNameLabel;
     @FXML
@@ -270,7 +247,7 @@ public class Controller extends View implements Initializable {
             Imgproc.resize(grayImageMat, resizeMat, new Size(100, 100));
             System.out.println(rect.width + ", " + rect.height);//
             facess.put(rect, String.valueOf(0));
-            Drawer.drawSingleFace(rect, facesPane, pane, facess, imageView, widthScaleFactor, heightScaleFactor, file);
+            new Drawer().drawSingleFace(rect);
             if (autoFaceRecognizeMenu.isSelected()) {
                 double[] result = faceRecognize(resizeMat);
                 double predictedLabel = result[0];
@@ -288,11 +265,10 @@ public class Controller extends View implements Initializable {
 
     /**
      * Все зоны выделения найденных лиц после сдвига отрисовываются заново (возвращаются на место).
-     * @throws MalformedURLException
      */
     @FXML
-    private void putRectangleBack() throws MalformedURLException {
-        Drawer.drawAllFaces(facesPane, faces, pane, facess, imageView, widthScaleFactor, heightScaleFactor, file);
+    private void putRectangleBack() {
+        new Drawer().drawAllFaces(faces);
     }
 
     /**
