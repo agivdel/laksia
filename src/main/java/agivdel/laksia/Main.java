@@ -34,7 +34,7 @@ public class Main extends Application {
         stage.setResizable(true);
         stage.show();
 
-        Controller controller = loader.getController();
-        controller.setStage(stage);
+        View view = loader.getController();
+        view.setStage(stage);
     }
 }

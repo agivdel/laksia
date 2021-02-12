@@ -3,7 +3,6 @@ package agivdel.laksia;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
@@ -13,7 +12,6 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.FileChooser;
-import javafx.stage.Stage;
 import org.opencv.core.*;
 import org.opencv.imgproc.Imgproc;
 
@@ -26,8 +24,6 @@ import java.net.URL;
 import java.util.*;
 
 public class Controller extends View implements Initializable {
-    private static Stage stage;
-    private static Scene scene;
     private static final Desktop desktop = Desktop.getDesktop();
 
     private static double faceProportion;
@@ -74,16 +70,6 @@ public class Controller extends View implements Initializable {
 
 
     /**
-     * Метод для передачи объекта главного окна в класс контроллера.
-     *
-     * @param stage объект главного окна
-     */
-    public void setStage(Stage stage) {
-        Controller.stage = stage;
-        scene = stage.getScene();
-    }
-
-    /**
      * Инициализация объектов и полей.
      *
      * @param url
@@ -96,7 +82,9 @@ public class Controller extends View implements Initializable {
 
         names = Recognizer.trainModel("src/main/resources/trainingSet_facerec/");
         facess = new HashMap<>();
-        maskiShowGroupInit();
+        ToggleGroup showOrMaskGroup = new ToggleGroup();
+        maskRectangleMenu.setToggleGroup(showOrMaskGroup);
+        showRectangleMenu.setToggleGroup(showOrMaskGroup);
         foundFacesNumberLabel2.textProperty().bind(foundFacesNumberLabel.textProperty());//временно, потом убрать
     }
 
@@ -191,13 +179,6 @@ public class Controller extends View implements Initializable {
     }
 
 
-    private void maskiShowGroupInit() {
-        ToggleGroup showOrMaskGroup = new ToggleGroup();
-        maskRectangleMenu.setToggleGroup(showOrMaskGroup);
-        showRectangleMenu.setToggleGroup(showOrMaskGroup);
-    }
-
-
     //по умолчанию все видео преобразуются в матрицу
 
     //если пользователь выбрал файл видео с диска,
@@ -228,8 +209,16 @@ public class Controller extends View implements Initializable {
             //дублирование файла изображения в отдельном новом окне
             NewWindow.showImage(imageFile, "file image", pane, stage);
 
-            imageView = NewWindow.getImageView(pane, imageFile);
-            pane.getChildren().add(imageView);
+            imageView.setImage(imageFile);
+            //изображения больше панели подгоняются под ее размер и остаются такими до конца
+            if (imageFile.getWidth() > pane.getWidth() || imageFile.getHeight() > pane.getHeight()) {
+                imageView.setFitWidth(pane.getWidth());
+                imageView.setFitHeight(pane.getHeight());
+            } else {
+                //маленькие изображения сохраняют исходные размеры
+                imageView.setFitWidth(0);
+                imageView.setFitHeight(0);
+            }
             widthScaleFactor = (pane.getWidth() / imageFile.getWidth());
             heightScaleFactor = (pane.getHeight() / imageFile.getHeight());
 
