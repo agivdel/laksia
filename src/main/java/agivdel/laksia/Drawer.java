@@ -24,14 +24,9 @@ public class Drawer extends View{
     }
 
     public void drawSingleFace(Rect r) {
-        double topLeftX = (r.x * widthScaleFactor + imageView.getLayoutX());// widthScaleFactor;
-        double topLeftY = (r.y * heightScaleFactor + imageView.getLayoutY());// heightScaleFactor;
+        double topLeftX = (r.x /** widthScaleFactor*/ + imageView.getLayoutX());// widthScaleFactor;
+        double topLeftY = (r.y /** heightScaleFactor*/ + imageView.getLayoutY());// heightScaleFactor;
         Shape faceRectangle = new Rectangle(topLeftX, topLeftY, r.width, r.height);
-        System.out.println("x / y: " + r.x + ", " + r.y);
-        System.out.println("imagePane w/h: " + pane.getWidth() + ", " + pane.getHeight());
-        System.out.println("image w/h: " + new Image(file.toURI().toString()).getWidth() + ", " + new Image(file.toURI().toString()).getHeight());
-        System.out.println("w: " + r.x * widthScaleFactor + ", h: " + r.y * heightScaleFactor);
-        System.out.println("topLeftX/topLeftY: " + topLeftX + " / " + topLeftY);
 
         Text text = new Text(topLeftX, topLeftY, "another shchi");
         text.setTextOrigin(VPos.TOP);//начало координат в левом верхнем углу узла text. Доступен только для класса Text

@@ -28,7 +28,7 @@ public class View {
     MatOfRect faces;//матрица с координатами обнаруженных лиц
     Map<Rect, String> facess;
     File file;//файл изображения
-    double widthScaleFactor, heightScaleFactor;//коэфф.показывает, во сколько раз панель больше файла
+//    double widthScaleFactor, heightScaleFactor;//коэфф.показывает, во сколько раз панель больше файла
 
     @FXML
     StackPane pane;

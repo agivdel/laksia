@@ -7,7 +7,6 @@ import javafx.scene.control.*;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
-import javafx.scene.input.KeyCode;
 import javafx.stage.FileChooser;
 import org.opencv.core.*;
 import org.opencv.imgproc.Imgproc;
@@ -24,26 +23,13 @@ public class Controller extends View implements Initializable {
     private TextField getParentField;
     @FXML
     private Label getNameLabel;
-    @FXML
-    private Label getMatProfileLabel;
-    @FXML
-    private Label foundFacesNumberLabel;
 
-    @FXML
-    private CheckMenuItem autoFaceDetectMenu;
     @FXML
     private RadioMenuItem maskRectangleMenu;
     @FXML
     private RadioMenuItem showRectangleMenu;
     @FXML
     private CheckMenuItem autoFaceRecognizeMenu;
-
-    @FXML
-    private Slider faceProportionSlider;
-    @FXML
-    private Label faceMinSizeLabel;
-    @FXML
-    private Label foundFacesNumberLabel2;
 
 
     /**
@@ -54,45 +40,13 @@ public class Controller extends View implements Initializable {
      */
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        getParentDirectoryFieldInit();//инициализация текстового поля директории выбранного файла
-        setFaceDetectAdjustment();
-
         names = Recognizer.trainModel("src/main/resources/trainingSet_facerec/");
         facess = new HashMap<>();
         ToggleGroup showOrMaskGroup = new ToggleGroup();
         maskRectangleMenu.setToggleGroup(showOrMaskGroup);
         showRectangleMenu.setToggleGroup(showOrMaskGroup);
-        foundFacesNumberLabel2.textProperty().bind(foundFacesNumberLabel.textProperty());//временно, потом убрать
-    }
 
-    /**
-     * Минимальный размер искомого лица. Объекты размером меньше будут игнорироваться.
-     */
-    private void setFaceDetectAdjustment() {
         faceProportion = 0.2f;
-        faceProportionSlider.valueProperty().addListener((obj, oldValue, newValue) -> {
-            faceProportion = newValue.doubleValue();
-        });
-    }
-
-    /**
-     * Отображение директории с выбранным файлом изображения в поле getParentField.
-     * Поле getParentField может принимать путь к файлу.
-     * Если файл существует, он будет открыт.
-     * Если такого файла нет, в поле будет показан старый (предыдущий) адрес.
-     */
-    private void getParentDirectoryFieldInit() {
-        getParentField.setOnKeyReleased(keyEvent -> {
-            if (keyEvent.getCode() == KeyCode.ENTER) {
-                File newFile = new File(getParentField.getText().trim());
-                if (newFile.exists()) {
-                    file = newFile;
-                    displayImageFile(file);
-                } else if (file != null) {
-                    getParentField.setText(file.getParent());
-                }
-            }
-        });
     }
 
     /**
@@ -155,59 +109,26 @@ public class Controller extends View implements Initializable {
         Platform.exit();
     }
 
-
-    //по умолчанию все видео преобразуются в матрицу
-
-    //если пользователь выбрал файл видео с диска,
-    //открывают его через new videoCapture().read(), получаю матрицу как есть
-    //и преобразую ее в матрицу изображения matToBufferedImage() (это быстрее, чем в WritableImage)
-
-    //если пользователь захватывает кадры с веб-камеры,
-    //открывают его через new videoCapture().read(), получаю матрицу как есть
-    //и преобразую ее в матрицу изображения matToBufferedImage() (это быстрее, чем в WritableImage)
-
-    //если пользователь выбрал файл фото с диска, преобразую его в матрицу как есть (константа -1)
-
     /**
      * отображение выбранного файла изображения
      *
      * @param file файл изображения
      */
     private void displayImageFile(File file) {
-        try {
-            Image imageFile = new Image(file.toURI().toString());
+        Image imageFile = new Image(file.toURI().toString());
 
-            getParentField.setText(file.getParent() + "\\");
-            getParentField.positionCaret(getParentField.getText().length());
-            getNameLabel.setText(file.getName());
-            foundFacesNumberLabel.setText("");
-            facesPane.getChildren().clear();
+        getNameLabel.setText(file.getName());
+        facesPane.getChildren().clear();
 
-            //дублирование файла изображения в отдельном новом окне
-            NewWindow.showImage(imageFile, "file image", pane, stage);
-
-            imageView.setImage(imageFile);
-            //изображения больше панели подгоняются под ее размер и остаются такими до конца
-            if (imageFile.getWidth() > pane.getWidth() || imageFile.getHeight() > pane.getHeight()) {
-                imageView.setFitWidth(pane.getWidth());
-                imageView.setFitHeight(pane.getHeight());
-            } else {
-                //маленькие изображения сохраняют исходные размеры
-                imageView.setFitWidth(0);
-                imageView.setFitHeight(0);
-            }
-            widthScaleFactor = (pane.getWidth() / imageFile.getWidth());
-            heightScaleFactor = (pane.getHeight() / imageFile.getHeight());
-
-            //переписать код, сделать гибкую подгонку размеров изображений под размеры панели
-
-            //при уменьшении высоты окна изображение наползает на панель меню - найти причину и исправить!
-
-            if (autoFaceDetectMenu.isSelected() || showRectangleMenu.isSelected()) {
-                faceDetect();
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
+        imageView.setImage(imageFile);
+        //изображения больше панели подгоняются под ее размер и остаются такими до конца
+        if (imageFile.getWidth() > pane.getWidth() || imageFile.getHeight() > pane.getHeight()) {
+            imageView.setFitWidth(pane.getWidth());
+            imageView.setFitHeight(pane.getHeight());
+        } else {
+            //маленькие изображения сохраняют исходные размеры
+            imageView.setFitWidth(0);
+            imageView.setFitHeight(0);
         }
     }
 
@@ -215,7 +136,7 @@ public class Controller extends View implements Initializable {
      * Ищем лица на изображении и распознаем их.
      */
     @FXML
-    private void faceDetect() throws MalformedURLException {
+    private void faceDetect() {
         if (file == null) {
             Alert alert = new Alert(Alert.AlertType.ERROR, "no file selected");
             alert.showAndWait();
@@ -230,14 +151,9 @@ public class Controller extends View implements Initializable {
         if (Math.round(height * (float) faceProportion) > 0) {//минимальный размер лица, который можно будет найти
             minSize = Math.round((height * (float) faceProportion));
         }
-        faceMinSizeLabel.setText(String.valueOf(minSize));//временно, потом убрать
         faces = new MatOfRect();
         faces = Detector.findFaces(grayImageMat, minSize);
 
-        String matProfile = String.format("  %dx%d    %s    %dch  ", originImageMat.width(), originImageMat.height(),
-                CvType.typeToString(originImageMat.type()), originImageMat.channels());
-        getMatProfileLabel.setText(matProfile);
-        foundFacesNumberLabel.setText(String.valueOf(faces.toList().size()));
         facesPane.getChildren().clear();
 
         for (Rect rect : faces.toList()) {
@@ -255,12 +171,6 @@ public class Controller extends View implements Initializable {
             }
         }
     }
-
-
-    //90. если пользователь нажал "новый человек", сохраняю это имя
-    //95. и экстракт лица помещаю в модель FR, используя имя в имени (или номер?)
-    //110. показываю на панели лиц отметку с ближайшим вектором для данного лица (т.е. предсказание модели)
-    //120. возможно, ближайшего вектора не найдется, тогда обозначить лицо "неизвестный"
 
 
     /**
@@ -306,17 +216,4 @@ public class Controller extends View implements Initializable {
     private double[] faceRecognize(Mat currentFace) {
         return Recognizer.faceRecognize(currentFace);
     }
-
-/*    public void showSimplePopup(String message) {
-        Label messageLabel = new Label(message);
-        Button cancelButton = new Button("пнятненько");
-        VBox vbox = new VBox();
-        vbox.getChildren().addAll(messageLabel, cancelButton);
-        vbox.setMinWidth(200);
-        vbox.setMinHeight(100);
-        Popup popup = new Popup();
-        cancelButton.setOnAction(event -> popup.hide());
-        popup.getScene().setRoot(vbox);
-        popup.show(stage);
-    }*/
 }
