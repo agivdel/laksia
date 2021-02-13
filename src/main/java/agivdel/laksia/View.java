@@ -6,11 +6,9 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
-import org.opencv.core.Mat;
 import org.opencv.core.MatOfRect;
 import org.opencv.core.Rect;
 
-import java.awt.*;
 import java.io.File;
 import java.util.Map;
 
@@ -18,17 +16,7 @@ public class View {
     static Stage stage;
     static Scene scene;
 
-    static final Desktop desktop = Desktop.getDesktop();
-    static double faceProportion;
     static Map<Integer, String> names;
-
-
-    Mat originImageMat;//матрица исходного изображения (1-, 3- или 4-канальная)
-    Mat grayImageMat;//матрица изображения в оттенках серого
-    MatOfRect faces;//матрица с координатами обнаруженных лиц
-    Map<Rect, String> facess;
-    File file;//файл изображения
-//    double widthScaleFactor, heightScaleFactor;//коэфф.показывает, во сколько раз панель больше файла
 
     @FXML
     StackPane pane;
@@ -48,4 +36,27 @@ public class View {
         View.scene = stage.getScene();
     }
 
+    public StackPane getPane() {
+        return pane;
+    }
+
+    public void setPane(StackPane pane) {
+        this.pane = pane;
+    }
+
+    public ImageView getImageView() {
+        return imageView;
+    }
+
+    public void setImageView(ImageView imageView) {
+        this.imageView = imageView;
+    }
+
+    public Pane getFacesPane() {
+        return facesPane;
+    }
+
+    public void setFacesPane(Pane facesPane) {
+        this.facesPane = facesPane;
+    }
 }

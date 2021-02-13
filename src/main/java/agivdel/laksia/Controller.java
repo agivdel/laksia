@@ -1,6 +1,5 @@
 package agivdel.laksia;
 
-import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.VPos;
@@ -16,25 +15,24 @@ import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import org.opencv.core.*;
-import org.opencv.imgproc.Imgproc;
 
 import java.io.File;
-import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
 
 public class Controller extends View implements Initializable {
 
+    File file;//файл изображения
+    MatOfRect facesMat;//матрица с координатами обнаруженных лиц
+    Map<Rect, String> faces;//карта лиц и имен
+
+
     @FXML
     private Label getNameLabel;
-
     @FXML
     private RadioMenuItem maskRectangleMenu;
     @FXML
     private RadioMenuItem showRectangleMenu;
-    @FXML
-    private CheckMenuItem autoFaceRecognizeMenu;
 
 
     /**
@@ -46,11 +44,10 @@ public class Controller extends View implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         names = Recognizer.trainModel("src/main/resources/trainingSet_facerec/");
-        facess = new HashMap<>();
+        this.faces = new HashMap<>();
         ToggleGroup showOrMaskGroup = new ToggleGroup();
         maskRectangleMenu.setToggleGroup(showOrMaskGroup);
         showRectangleMenu.setToggleGroup(showOrMaskGroup);
-        faceProportion = 0.2f;
     }
 
     /**
@@ -81,29 +78,24 @@ public class Controller extends View implements Initializable {
      */
     @FXML
     private void openSingleFile() {
-        file = fileChooserConfigure().showOpenDialog(stage);
+        //получить файл от объекта файловыборщика
+        //создать объект изображения на основе файла
+        //очистить слой лиц от старых данных
+        //создать объект imageView на основе изображения
+        this.file = fileChooserConfigure().showOpenDialog(stage);
         //TODO вызывать метод обработки из отдельного класса обработки ошибок?
-        if (file == null) {
+        if (this.file == null) {
             Alert alert = new Alert(Alert.AlertType.ERROR, "no file selected");
             alert.showAndWait();
         }
-        displayImageFile(file);
-    }
-
-    /**
-     * отображение выбранного файла изображения
-     *
-     * @param file файл изображения
-     */
-    private void displayImageFile(File file) {
-        Image imageFile = new Image(file.toURI().toString());
+        Image image = new Image(this.file.toURI().toString());
 
         getNameLabel.setText(file.getName());
         facesPane.getChildren().clear();
 
-        imageView.setImage(imageFile);
+        imageView.setImage(image);
         //изображения больше панели подгоняются под ее размер и остаются такими до конца
-        if (imageFile.getWidth() > pane.getWidth() || imageFile.getHeight() > pane.getHeight()) {
+        if (image.getWidth() > pane.getWidth() || image.getHeight() > pane.getHeight()) {
             imageView.setFitWidth(pane.getWidth());
             imageView.setFitHeight(pane.getHeight());
         } else {
@@ -118,39 +110,31 @@ public class Controller extends View implements Initializable {
      */
     @FXML
     private void faceDetect() {
-        if (file == null) {
+        if (this.file == null) {
             Alert alert = new Alert(Alert.AlertType.ERROR, "no file selected");
             alert.showAndWait();
             return;
         }
-        originImageMat = MatConvert.fileNameToMat(file.getPath(), -1);
-        grayImageMat = MatConvert.matToGrayMat(originImageMat);
-        Imgproc.equalizeHist(grayImageMat, grayImageMat);
-
-        int minSize = 0;
-        int height = grayImageMat.rows();
-        if (Math.round(height * (float) faceProportion) > 0) {//минимальный размер лица, который можно будет найти
-            minSize = Math.round((height * (float) faceProportion));
-        }
-        faces = new MatOfRect();
-        faces = Detector.findFaces(grayImageMat, minSize);
-
         facesPane.getChildren().clear();
+        this.facesMat = Detector.findFaces(this.file);
+        this.facesMat.toList().forEach(faceFrame -> this.faces.put(faceFrame, "0"));
+        drawAllFaces(this.facesMat);
+    }
 
-        for (Rect rect : faces.toList()) {
-            //когда реальный размер изображения больше окна, выделение уходит в сторону - ИСПРАВИТЬ!
-            Mat face = grayImageMat.submat(rect);
-            Mat resizeMat = new Mat();
-            Imgproc.resize(grayImageMat, resizeMat, new Size(100, 100));
-            System.out.println(rect.width + ", " + rect.height);//
-            facess.put(rect, String.valueOf(0));
-            drawSingleFace(rect);
-            if (autoFaceRecognizeMenu.isSelected()) {
-                double[] result = faceRecognize(resizeMat);
-                double predictedLabel = result[0];
-                double confidenceValue = result[1];
-            }
+    /**
+     * Распознаем найденные лица.
+     * @param currentFace матрица с изображением.
+     * @return The predicted label for the given image and associated confidence (e.g. distance) for the predicted label.
+     */
+    @FXML
+    private double[] faceRecognize() {
+        //получить список прямоугольников-лиц
+        //пройтись по списку
+        //распознать каждое лицо
+        for (Rect faceFrame : this.facesMat.toList()) {
+            Mat face =
         }
+        return Recognizer.faceRecognize();
     }
 
 
@@ -159,7 +143,7 @@ public class Controller extends View implements Initializable {
      */
     @FXML
     private void putRectangleBack() {
-        drawAllFaces(faces);
+        drawAllFaces(this.facesMat);
     }
 
     /**
@@ -176,36 +160,36 @@ public class Controller extends View implements Initializable {
      */
     @FXML
     private void showRectangle() {
-        if (file == null) {
+        if (this.file == null) {
             Alert alert = new Alert(Alert.AlertType.INFORMATION, "select the image file");
             alert.showAndWait();
         }
-        if (faces.empty()) {
+        if (this.facesMat.empty()) {
             faceDetect();
         } else {
             facesPane.setOpacity(0.4);
         }
     }
 
-    public void drawAllFaces(MatOfRect faces) {
+    public void drawAllFaces(MatOfRect facesMat) {
         facesPane.getChildren().clear();
-        for (Rect r : faces.toList()) {
-            drawSingleFace(r);
+        for (Rect faceFrame : facesMat.toList()) {
+            drawSingleFace(faceFrame);
         }
     }
 
-    public void drawSingleFace(Rect r) {
-        double topLeftX = (r.x /** widthScaleFactor*/ + imageView.getLayoutX());// widthScaleFactor;
-        double topLeftY = (r.y /** heightScaleFactor*/ + imageView.getLayoutY());// heightScaleFactor;
-        Shape faceRectangle = new Rectangle(topLeftX, topLeftY, r.width, r.height);
+    public void drawSingleFace(Rect faceFrame) {
+        double topLeftX = (faceFrame.x /** widthScaleFactor*/ + imageView.getLayoutX());// widthScaleFactor;
+        double topLeftY = (faceFrame.y /** heightScaleFactor*/ + imageView.getLayoutY());// heightScaleFactor;
+        Shape faceRectangle = new Rectangle(topLeftX, topLeftY, faceFrame.width, faceFrame.height);
 
         Text text = new Text(topLeftX, topLeftY, "another shchi");
         text.setTextOrigin(VPos.TOP);//начало координат в левом верхнем углу узла text. Доступен только для класса Text
         text.setFill(Color.WHITE);
         text.setFont(Font.font(16.0));
         text.setOpacity(1.0);
-        if (!facess.get(r).equals(String.valueOf(0))) {
-            text.setText(facess.get(r));
+        if (!this.faces.get(faceFrame).equals("0")) {
+            text.setText(this.faces.get(faceFrame));
         }
 
         text.setOnMousePressed(me -> {
@@ -220,7 +204,7 @@ public class Controller extends View implements Initializable {
                         String newName = textField.getText().trim();
                         if (!newName.equals("") & newName.length() > 0) {
                             text.setText(newName);
-                            facess.put(r, newName);
+                            this.faces.put(faceFrame, newName);
                         }
                         facesPane.getChildren().remove(textField);
                     }
@@ -232,15 +216,5 @@ public class Controller extends View implements Initializable {
         NodeEffects.makeBindUp(text, faceRectangle);
         NodeEffects.makeHighlighted(faceRectangle);
         facesPane.getChildren().addAll(faceRectangle, text);
-    }
-
-    /**
-     * Распознаем найденные лица.
-     * @param currentFace матрица с изображением.
-     * @return The predicted label for the given image and associated confidence (e.g. distance) for the predicted label.
-     */
-    @FXML
-    private double[] faceRecognize(Mat currentFace) {
-        return Recognizer.faceRecognize(currentFace);
     }
 }

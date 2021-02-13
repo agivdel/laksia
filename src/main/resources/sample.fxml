@@ -32,7 +32,6 @@
                                                             shortcut="UP"/>
                                     </accelerator>
                                 </MenuItem>
-                                <CheckMenuItem fx:id="autoFaceDetectMenu" text="Automatic face detection"/>
                                 <MenuItem onAction="#putRectangleBack"
                                           text="Put the faces back"/>
                                 <SeparatorMenuItem mnemonicParsing="false"/>
@@ -43,8 +42,7 @@
                                                text="Show the faces"/>
                                 <SeparatorMenuItem mnemonicParsing="false"/>
 
-                                <MenuItem text="Recognize faces"/>
-                                <CheckMenuItem fx:id="autoFaceRecognizeMenu" text="Automatic face recognition"/>
+                                <MenuItem onAction="#faceRecognize" text="Recognize faces"/>
                             </items>
                         </Menu>
                     </menus>

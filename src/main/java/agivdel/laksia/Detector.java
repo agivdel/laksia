@@ -8,6 +8,7 @@ import org.opencv.imgproc.Imgproc;
 import org.opencv.objdetect.CascadeClassifier;
 import org.opencv.objdetect.Objdetect;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,11 +19,20 @@ public class Detector {
      * записывает в матрицу faces координаты ограничивающих эти лица прямоугольников,
      * рисует эти прямоугольники на матрице исходного изображения.
      *
-     * @param grayImageMat матрица с исходным изображением для поиска лиц
-     * @param minSize      минимальный размер лица, который можно будет найти (в долях от высоты изображения)
-     * @return матрицу прямоугольников с координатами найденных лиц
+     * @param file файл с изображением.
+     * @return матрицу прямоугольников с координатами найденных лиц.
      */
-    public static MatOfRect findFaces(Mat grayImageMat, int minSize) {
+    public static MatOfRect findFaces(File file) {
+        Mat originImageMat = MatConvert.fileNameToMat(file.getPath(), -1);//матрица исходного изображения (1-, 3- или 4-канальная)
+        Mat grayImageMat = MatConvert.matToGrayMat(originImageMat);//матрица изображения в оттенках серого
+        Imgproc.equalizeHist(grayImageMat, grayImageMat);
+
+        int minSize = 0;
+        int height = grayImageMat.rows();
+        if (Math.round(height * 0.2f) > 0) {//минимальный размер лица, который можно будет найти
+            minSize = Math.round((height * 0.2f));
+        }
+
         CascadeClassifier faceDetector = new CascadeClassifier(
                 "src/main/resources/trainedModel/haarcascades/" +
                         "haarcascade_frontalface_alt.xml");
@@ -30,15 +40,15 @@ public class Detector {
             Alert alert = new Alert(Alert.AlertType.ERROR, "failed to load face classifier");
             alert.showAndWait();
         }
-        MatOfRect faces = new MatOfRect();
+        MatOfRect facesMat = new MatOfRect();
         faceDetector.detectMultiScale(grayImageMat,
-                faces,//матрица, куда будет записан результат
+                facesMat,//матрица, куда будет записан результат
                 1.1,
                 1,//встречал значение "2"
                 Objdetect.CASCADE_DO_CANNY_PRUNING,//встречал значние "CASCADE_SCALE_IMAGE"
                 new Size(minSize, minSize),
                 grayImageMat.size());
-        return faces;
+        return facesMat;
     }
 
     /**
