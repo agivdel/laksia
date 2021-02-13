@@ -66,7 +66,7 @@
 
                 <Pane maxHeight="25.0" minHeight="25.0" prefHeight="25.0"
                       style="-fx-background-color: yellow;">
-                    <TextField fx:id="getParentField" layoutY="1.0" maxHeight="23.0" minHeight="23.0" minWidth="200.0"
+                    <TextField fx:id="parentAddressField" layoutY="1.0" maxHeight="23.0" minHeight="23.0" minWidth="200.0"
                                prefHeight="23.0" prefWidth="250.0"
                                style="-fx-border-color: gray; -fx-border-style: solid line-join bevel line-cap butt; -fx-border-insets: 0;"/>
                 </Pane>
