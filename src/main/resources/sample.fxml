@@ -21,20 +21,6 @@
                                                             shortcut="UP"/>
                                     </accelerator>
                                 </MenuItem>
-                                <SeparatorMenuItem mnemonicParsing="false"/>
-                                <MenuItem onAction="#programExit" text="Exit">
-                                    <accelerator>
-                                        <KeyCodeCombination alt="UP" code="ESCAPE" control="UP" meta="UP" shift="UP"
-                                                            shortcut="UP"/>
-                                    </accelerator>
-                                </MenuItem>
-                            </items>
-                        </Menu>
-
-                        <Menu text="View">
-                            <items>
-                                <MenuItem onAction="#openFileWithExternalProgram"
-                                          text="Edit with external program"/>
                             </items>
                         </Menu>
 

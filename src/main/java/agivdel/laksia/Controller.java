@@ -3,10 +3,17 @@ package agivdel.laksia;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.geometry.VPos;
 import javafx.scene.control.*;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
+import javafx.scene.input.KeyCode;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
+import javafx.scene.shape.Shape;
+import javafx.scene.text.Font;
+import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import org.opencv.core.*;
 import org.opencv.imgproc.Imgproc;
@@ -19,8 +26,6 @@ import java.util.*;
 
 public class Controller extends View implements Initializable {
 
-    @FXML
-    private TextField getParentField;
     @FXML
     private Label getNameLabel;
 
@@ -45,7 +50,6 @@ public class Controller extends View implements Initializable {
         ToggleGroup showOrMaskGroup = new ToggleGroup();
         maskRectangleMenu.setToggleGroup(showOrMaskGroup);
         showRectangleMenu.setToggleGroup(showOrMaskGroup);
-
         faceProportion = 0.2f;
     }
 
@@ -84,29 +88,6 @@ public class Controller extends View implements Initializable {
             alert.showAndWait();
         }
         displayImageFile(file);
-    }
-
-    /**
-     * Загруженный файл откроется программой ОС, настроенной по умолчанию для этого типа файлов.
-     * @throws IOException
-     */
-    @FXML
-    private void openFileWithExternalProgram() throws IOException {
-        if (file == null) {
-            Alert alert = new Alert(Alert.AlertType.ERROR, "no file selected");
-            alert.showAndWait();
-            return;
-        }
-        desktop.open(file);
-    }
-
-    /**
-     * Закрытие программы.
-     */
-    @FXML
-    private void programExit() {
-        stage.close();
-        Platform.exit();
     }
 
     /**
@@ -163,7 +144,7 @@ public class Controller extends View implements Initializable {
             Imgproc.resize(grayImageMat, resizeMat, new Size(100, 100));
             System.out.println(rect.width + ", " + rect.height);//
             facess.put(rect, String.valueOf(0));
-            new Drawer().drawSingleFace(rect);
+            drawSingleFace(rect);
             if (autoFaceRecognizeMenu.isSelected()) {
                 double[] result = faceRecognize(resizeMat);
                 double predictedLabel = result[0];
@@ -178,7 +159,7 @@ public class Controller extends View implements Initializable {
      */
     @FXML
     private void putRectangleBack() {
-        new Drawer().drawAllFaces(faces);
+        drawAllFaces(faces);
     }
 
     /**
@@ -192,10 +173,9 @@ public class Controller extends View implements Initializable {
     /**
      * Если лица еще не найдены, ищем их.
      * Если лица уже найдены, возвращаем слою с лицами частичную непрозрачность.
-     * @throws MalformedURLException
      */
     @FXML
-    private void showRectangle() throws MalformedURLException {
+    private void showRectangle() {
         if (file == null) {
             Alert alert = new Alert(Alert.AlertType.INFORMATION, "select the image file");
             alert.showAndWait();
@@ -205,6 +185,53 @@ public class Controller extends View implements Initializable {
         } else {
             facesPane.setOpacity(0.4);
         }
+    }
+
+    public void drawAllFaces(MatOfRect faces) {
+        facesPane.getChildren().clear();
+        for (Rect r : faces.toList()) {
+            drawSingleFace(r);
+        }
+    }
+
+    public void drawSingleFace(Rect r) {
+        double topLeftX = (r.x /** widthScaleFactor*/ + imageView.getLayoutX());// widthScaleFactor;
+        double topLeftY = (r.y /** heightScaleFactor*/ + imageView.getLayoutY());// heightScaleFactor;
+        Shape faceRectangle = new Rectangle(topLeftX, topLeftY, r.width, r.height);
+
+        Text text = new Text(topLeftX, topLeftY, "another shchi");
+        text.setTextOrigin(VPos.TOP);//начало координат в левом верхнем углу узла text. Доступен только для класса Text
+        text.setFill(Color.WHITE);
+        text.setFont(Font.font(16.0));
+        text.setOpacity(1.0);
+        if (!facess.get(r).equals(String.valueOf(0))) {
+            text.setText(facess.get(r));
+        }
+
+        text.setOnMousePressed(me -> {
+            if (me.isSecondaryButtonDown()) {
+                TextField textField = new TextField();
+                facesPane.getChildren().add(textField);
+                textField.setLayoutX(topLeftX);
+                textField.setLayoutY(topLeftY + 20);
+                textField.setPromptText("уточните имя");
+                textField.setOnKeyReleased(keyEvent -> {
+                    if (keyEvent.getCode() == KeyCode.ENTER) {
+                        String newName = textField.getText().trim();
+                        if (!newName.equals("") & newName.length() > 0) {
+                            text.setText(newName);
+                            facess.put(r, newName);
+                        }
+                        facesPane.getChildren().remove(textField);
+                    }
+                });
+            }
+        });
+
+        NodeEffects.makeDraggable(faceRectangle);
+        NodeEffects.makeBindUp(text, faceRectangle);
+        NodeEffects.makeHighlighted(faceRectangle);
+        facesPane.getChildren().addAll(faceRectangle, text);
     }
 
     /**
