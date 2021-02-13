@@ -44,8 +44,8 @@ public class NodeEffects {
     }
 
     public static void makeBindUp(Node attached, Node host) {
-        attached.layoutXProperty().bind/*Bidirectional*/(host.layoutXProperty());
-        attached.layoutYProperty().bind/*Bidirectional*/(host.layoutYProperty());
+        attached.layoutXProperty().bind(host.layoutXProperty());
+        attached.layoutYProperty().bind(host.layoutYProperty());
     }
 
     public static void makeHighlighted(Shape shape) {

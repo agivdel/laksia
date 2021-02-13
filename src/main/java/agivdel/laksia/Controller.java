@@ -95,9 +95,9 @@ public class Controller extends View implements Initializable {
 
         imageView.setImage(image);
         //изображения больше панели подгоняются под ее размер и остаются такими до конца
-        if (image.getWidth() > pane.getWidth() || image.getHeight() > pane.getHeight()) {
-            imageView.setFitWidth(pane.getWidth());
-            imageView.setFitHeight(pane.getHeight());
+        if (image.getWidth() > mainPane.getWidth() || image.getHeight() > mainPane.getHeight()) {
+            imageView.setFitWidth(mainPane.getWidth());
+            imageView.setFitHeight(mainPane.getHeight());
         } else {
             //маленькие изображения сохраняют исходные размеры
             imageView.setFitWidth(0);
@@ -123,18 +123,21 @@ public class Controller extends View implements Initializable {
 
     /**
      * Распознаем найденные лица.
-     * @param currentFace матрица с изображением.
-     * @return The predicted label for the given image and associated confidence (e.g. distance) for the predicted label.
      */
     @FXML
-    private double[] faceRecognize() {
+    private void faceRecognize() {
         //получить список прямоугольников-лиц
         //пройтись по списку
         //распознать каждое лицо
-        for (Rect faceFrame : this.facesMat.toList()) {
-            Mat face =
-        }
-        return Recognizer.faceRecognize();
+//        for (Rect rect : facesMat.toList()) {
+//            //когда реальный размер изображения больше окна, выделение уходит в сторону - ИСПРАВИТЬ!
+//            Mat face = originGrayImageMat.submat(rect);
+//            Mat resizeMat = new Mat();
+//            Imgproc.resize(originGrayImageMat, resizeMat, new Size(100, 100));
+//            double[] result = faceRecognize(resizeMat);
+//            double predictedLabel = result[0];
+//            double confidenceValue = result[1];
+//        }
     }
 
 
@@ -173,9 +176,7 @@ public class Controller extends View implements Initializable {
 
     public void drawAllFaces(MatOfRect facesMat) {
         facesPane.getChildren().clear();
-        for (Rect faceFrame : facesMat.toList()) {
-            drawSingleFace(faceFrame);
-        }
+        facesMat.toList().forEach(this::drawSingleFace);
     }
 
     public void drawSingleFace(Rect faceFrame) {

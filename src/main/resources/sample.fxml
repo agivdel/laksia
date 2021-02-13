@@ -59,7 +59,7 @@
     </top>
 
     <center>
-        <StackPane fx:id="pane" prefHeight="600.0" prefWidth="900.0" style="-fx-border-color: darkred"
+        <StackPane fx:id="mainPane" prefHeight="600.0" prefWidth="900.0" style="-fx-border-color: darkred"
                    StackPane.alignment="CENTER">
             <ImageView fx:id="imageView" nodeOrientation="INHERIT" pickOnBounds="true" preserveRatio="true"
                        StackPane.alignment="CENTER"/>
@@ -73,7 +73,6 @@
             <Label fx:id="getNameLabel" prefWidth="300.0" style="-fx-border-color: gray"/>
             <Label fx:id="getMatProfileLabel" prefWidth="200.0" style="-fx-border-color: gray"/>
             <Label prefHeight="19.0" prefWidth="130.0" style="-fx-border-color: gray" text="number of faces found:"/>
-            <Label fx:id="foundFacesNumberLabel" prefWidth="30.0" style="-fx-border-color: gray"/>
         </HBox>
     </bottom>
 
